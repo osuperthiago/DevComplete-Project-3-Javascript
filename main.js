@@ -88,6 +88,6 @@ galleryImages.forEach(function(image,index){
     thumb.src = image.src;
     thumb.alt = image.alt;
     thumb.dataset.arrayIndex = index;
-    thumb.dataset.setected = false;
+    thumb.dataset.setected = index === 0 ? true : false;
     thumbnails.appendChild(thumb);
 });
