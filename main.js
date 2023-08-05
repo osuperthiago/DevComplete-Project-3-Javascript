@@ -1,3 +1,6 @@
+const weatherAPIKey = "ab8eb7f0f8646c98adccf0c40ed4127a";
+
+const weatherAPIURL = `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}&units=metric`;
 
 
 const galleryImages = [
@@ -90,31 +93,54 @@ if (currentHour < 12){
     greetingText = " Out of Time in the day, somehow.";
 }
 
-const weatherCondition = "rainsss";
-const userLocation = "New jersey";
-let temperature = 0.1717;
-
-let celsiusText = `The weather is ${weatherCondition} in ${userLocation} and it's ${temperature.toFixed(1)}°C outside.`;
-let fahrText = `The weather is ${weatherCondition} in ${userLocation} and it's ${celciusToFahr(temperature).toFixed(1)}°F outside.`;
-
 document.querySelector("#greeting").innerHTML = greetingText;
-document.querySelector("p#weather").innerHTML = celsiusText;
 
-document.querySelector(".weather-group").addEventListener("click", function(e) {
-    if (e.target.id == "celsius") {
-        document.querySelector("p#weather").innerHTML = celsiusText;
-    } else if (e.target.id == "fahr") {
-        document.querySelector("p#weather").innerHTML = fahrText;
-    }
+}
 
-});
+// Weather text
+function weatherHandler(){
+    navigator.geolocation.getCurrentPosition( position => {
 
+        let latitude = position.coords.latitude;
+        let longitude = position.coords.longitude;
+        let url = weatherAPIURL
+            .replace("{lat}",latitude)
+            .replace("{lon}", longitude)
+            .replace("{API key}", weatherAPIKey);
+        
+        fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const condition = data.weather[0].description;
+            const location = data.name;
+            const temperature = data.main.temp;
+
+   
+            let celsiusText = `The weather is ${condition} in ${location} and it's ${temperature.toFixed(1)}°C outside.`;
+            let fahrText = `The weather is ${condition} in ${location} and it's ${celciusToFahr(temperature).toFixed(1)}°F outside.`;
+            
+            
+            document.querySelector("p#weather").innerHTML = celsiusText;
+            
+            document.querySelector(".weather-group").addEventListener("click", function(e) {
+                if (e.target.id == "celsius") {
+                    document.querySelector("p#weather").innerHTML = celsiusText;
+                } else if (e.target.id == "fahr") {
+                    document.querySelector("p#weather").innerHTML = fahrText;
+                }
+            
+            });
+    
+        }).catch(err => {
+            document.querySelector("p#weather").innerHTML = "Error getting the temp";
+        });
+    });
 
 }
 
 //Local Time Section
 
-function clickHandler(){
+function clockHandler(){
     setInterval(function(){
         let localTime = new Date ();
         document.querySelector("span[data-time=hours]").textContent = localTime.getHours().toString().padStart(2,"0");
@@ -220,10 +246,10 @@ function populateProducts(productList) {
 
 function productsHander (){
 
-    let freeProducts = products.filter(function(item){
-        return item.price <=0 || !item.price;
-    });
+    //arrow function
+    let freeProducts = products.filter(item => item.price <=0 || !item.price);
 
+    //normal function
     let paidProducts = products.filter(function(item){
         return item.price >0;
     });
@@ -252,7 +278,12 @@ function footerHanlder (){
     let currentYear = new Date().getFullYear();
     document.querySelector("footer").textContent = `© ${currentYear} - All rights reserved`;
 
+    console.log("thiathi");
+
 }
+
+
+
 
 
 
@@ -260,10 +291,12 @@ function footerHanlder (){
 
 menuHandler();
 greetingHandler ();
-clickHandler();
+weatherHandler();
+clockHandler();
 galleryHandler();
 productsHander ();
 footerHanlder ();
+
 
 
 
